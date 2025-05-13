@@ -1,0 +1,84 @@
+# MPI Round Robin Example - Setup and Run Instructions
+
+## Prerequisites
+
+1. **Install Microsoft MPI**
+   - Download and install Microsoft MPI from:  
+     https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi
+   - *(Optional: Download via PowerShell)*  
+     ```powershell
+     Invoke-WebRequest -Uri "https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe" -OutFile "msmpisetup.exe"
+     ```
+
+2. **Add MPI to your PATH (if needed)**
+   - Add the following to your PATH environment variable (adjust if installed elsewhere):  
+     `C:\Program Files\Microsoft MPI\Bin`
+   - *(For Git Bash, you can export for the current session:)*  
+     ```bash
+     export PATH="/c/Program Files/Microsoft MPI/Bin:$PATH"
+     ```
+
+3. **Install GCC (MinGW)**
+   - Download and install MinGW-w64 from:  
+     https://www.mingw-w64.org/
+   - *(Optional: Download via PowerShell)*  
+     ```powershell
+     Invoke-WebRequest -Uri "https://sourceforge.net/projects/mingw-w64/files/latest/download" -OutFile "mingw-w64.exe"
+     ```
+   - Add the `bin` directory of MinGW to your PATH.  
+     *(For Git Bash, you can export for the current session, e.g.:)*  
+     ```bash
+     export PATH="/c/mingw-w64/bin:$PATH"
+     ```
+
+## Updating Include Paths in VS Code
+
+If you see errors about missing headers (like `mpi.h`), update your include path in VS Code:
+
+1. Open the Command Palette (`Ctrl+Shift+P`) and select **C/C++: Edit Configurations (UI)**.
+2. In the **Include path** section, add the following (one per line):
+    ```
+    C:/Program Files/Microsoft MPI/Inc
+    ```
+   (Use forward slashes or double backslashes. Adjust the path if your MPI is installed elsewhere.)
+3. If you get errors about `sal.h`, also add your Windows SDK include paths, for example:
+    ```
+    C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt
+    C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/shared
+    ```
+   (Replace `10.0.19041.0` with your installed SDK version.)
+
+4. Close the settings tab—VS Code saves automatically.
+
+5. Restart VS Code if IntelliSense errors persist.
+
+## Compiling the Program
+
+Open Git Bash or Command Prompt and navigate to the project directory.  
+If you haven't already, export the MPI and MinGW paths for your session:
+
+```bash
+export PATH="/c/Program Files/Microsoft MPI/Bin:$PATH"
+export PATH="/c/mingw-w64/bin:$PATH"
+```
+
+Then compile (adjust paths if needed):
+
+```bash
+gcc -I"/c/Program Files/Microsoft MPI/Inc" round-robin-basic.c -o round-robin-basic.exe -L"/c/Program Files/Microsoft MPI/Lib/x64" -lmsmpi
+```
+
+## Running the Program
+
+Use `mpiexec` to run with the desired number of processes (e.g., 4):
+
+```bash
+mpiexec -n 4 ./round-robin-basic.exe
+```
+
+## Notes
+
+- If you get errors about missing headers (like `mpi.h` or `sal.h`), ensure your include paths are correct and the Windows SDK is installed.
+- Output order may vary due to parallel execution.
+- For more information on Microsoft MPI:  
+  https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi
